@@ -1,0 +1,43 @@
+services:
+  browser:
+    image: jlesage/chromium:v26.09.2@sha256:e42de7469bce122b8a69d4f62101850ece45c41ed7ed952f2b506f99947093ae
+    container_name: chatharbor-nas-pilot
+    restart: unless-stopped
+    shm_size: 1gb
+    mem_limit: 3gb
+    cpus: 2.0
+    environment:
+      USER_ID: "${CHATHARBOR_UID:-1000}"
+      GROUP_ID: "${CHATHARBOR_GID:-1001}"
+      TZ: "${TZ:-Asia/Shanghai}"
+      LANG: zh_CN.UTF-8
+      ENABLE_CJK_FONT: "1"
+      UMASK: "0077"
+      KEEP_APP_RUNNING: "1"
+      SECURE_CONNECTION: "1"
+      WEB_AUTHENTICATION: "1"
+      WEB_FILE_MANAGER: "0"
+      WEB_TERMINAL: "0"
+      WEB_HOST_CLIPBOARD_SYNC: "0"
+      VNC_LISTENING_PORT: "-1"
+    ports:
+      - "${CHATHARBOR_BIND_ADDRESS:-127.0.0.1}:${CHATHARBOR_WEB_PORT:-5808}:5800"
+    volumes:
+      - type: volume
+        source: browser-profile
+        target: /config
+      - type: bind
+        source: ${CHATHARBOR_ARCHIVE_HOST_PATH:?Set CHATHARBOR_ARCHIVE_HOST_PATH in .env}
+        target: /data/conversations/chatgpt
+        read_only: false
+        bind:
+          create_host_path: false
+      - type: volume
+        source: data-posix-pilot
+        target: /data/chatharbor-posix-pilot
+volumes:
+  browser-profile:
+    name: chatharbor-nas-pilot_browser-profile
+  data-posix-pilot:
+    external: true
+    name: chatharbor-nas-pilot_data-posix-pilot
