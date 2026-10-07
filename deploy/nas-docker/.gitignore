@@ -1,0 +1,4 @@
+.env
+*.secret
+browser-profile/
+data/
